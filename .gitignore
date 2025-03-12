@@ -1,6 +1,5 @@
 bin
 tmp
 *.o
-inih
 tbase
 runenv
