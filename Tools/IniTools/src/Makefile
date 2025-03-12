@@ -6,23 +6,20 @@
 #
 # Makefile for Linux platform
 TMPDIR=../tmp/
-BINDIR_DYNAMIC=../bin/
-BINDIR_STATIC=../bin/
-BINDIR=../bin/
-HEADERDIR=
+BINDIR_DYNAMIC=../bin/dynamic/
+BINDIR_STATIC=../bin/static/
+BINDIR=$(BINDIR_DYNAMIC)
+HEADERDIR=../include/
 
-USR_LOCAL_LIB=${HOME}/.local
-INI=../Tools/inih
-INI_TOOLS=../Tools/IniTools
-
-MYLIB=$(INI) $(INI_TOOLS)
+INI=../../inih
 
 LINK_TYPE=static
 
 CC=g++
 
-AR=$(CC)
-AFLAG=$(CCFLAG)
+AR=ar
+# AFLAG=ruvs
+AFLAG=rvs
 
 SRCFILES=$(wildcard *.c *.cc *.cpp)
 HEADERS=$(wildcard *.h *.hpp)
@@ -30,10 +27,10 @@ INCLUDEDIRFILES=$(addprefix $(HEADERDIR), $(HEADERS))
 
 OBJS=$(patsubst %, $(TMPDIR)%, $(patsubst %.c, %.o, $(patsubst %.cc, %.o, $(patsubst %.cpp, %.o, $(SRCFILES)))))
 
-TARGET_STATIC=main
-TARGET_DYNAMIC=main
-LINK1=main
-LINK2=main
+TARGET_STATIC=libIniTools.a
+TARGET_DYNAMIC=libIniTools.so.1.0.0
+LINK1=libIniTools.so.1
+LINK2=libIniTools.so
 
 TARGET?=$(TARGET_DYNAMIC)
 
@@ -50,7 +47,6 @@ CCFLAG=-Wall -Wextra -Wno-parentheses \
 INCLUDEDIR=\
 		-I. \
 		-I$(INI)/include \
-		-I$(INI_TOOLS)/include \
 		# -I$(USR_LOCAL_LIB)/include \
 		-I$(TKBUS)/include \
 		-I$(NULIB)/include \
@@ -70,7 +66,6 @@ INCLUDEDIR=\
 
 LIBDIR1=\
 		-L$(INI)/bin \
-		-L$(INI_TOOLS)/bin \
 		# -L$(EMGTOOLS)/bin \
 		-L$(EMGDATA)/bin \
 		-L$(EMGTKBUS)/bin \
@@ -92,14 +87,10 @@ LIBDIR2=\
 
 LIBDIR=$(addsuffix /$(BUILD_TYPE), $(LIBDIR1)) $(LIBDIR2)
 
-# LIBS=-lMsgDispatcher -lEmgOtcGw -lEmgTkBus -lEmgGwClnt -lEmgData -lStrategyTools -lRushOrder -lEmgCore -lEmgRisk -lEmgTools -lAOMgrClnt -lTukanBusClnt -lNuFixUtil -lNuEv -lNuEv_pic -lNuUtil -lpthread -lAOUtil
+LIBS=-lIniCpp -lIni -lpthread
 
-LIBS=-lIni -lIniTools -lpthread
-
-# LDFLAGS_DYNAMIC=-Wl,-rpath,`pwd`/$(EMGTKBUS)/bin/dynamic:`pwd`/$(EMGOTCGW)/bin/dynamic:`pwd`/$(EMGTOOLS)/bin/dynamic:`pwd`/$(MSGDISPATCHER)/bin/dynamic:`pwd`/$(EMGDATA)/bin/dynamic:`pwd`/$(EMGCORE)/bin/dynamic:`pwd`/$(STRATEGY_RUSHORDER)/bin/dynamic:`pwd`/$(STRATEGY_TOOLS)/bin/dynamic:`pwd`/$(EMGRISK)/bin/dynamic
-LDFLAGS_DYNAMIC=
-
-#LDFLAGS_STATIC=-static
+LDFLAGS_DYNAMIC=-fpic -shared -Wl,-soname,$(LINK1)
+LDFLAGS_STATIC=-static
 LDFLAG=
 
 ifeq ($(BUILD), debug)
@@ -117,7 +108,7 @@ else ifeq ($(BUILD_TYPE), static)
 	TARGET=$(TARGET_STATIC)
 	LDFLAG+=$(LDFLAGS_STATIC)
 	BINDIR=$(BINDIR_STATIC)
-	LINK=$(CC) $(CCFLAG) $(LDFLAGS_STATIC)
+	LINK=$(AR) $(AFLAG)
 endif
 
 COMPILE+=$(CC) $(CCFLAG) $(LDFLAG)
@@ -130,10 +121,10 @@ init:
 
 $(TMPDIR)$(TARGET): $(OBJS)
 	@echo "---- build $@ ----"
-	$(LINK) -o $@ $^ $(LIBDIR) $(LIBS)
+	$(LINK) -o $@ $^
 	@echo .
 
-$(TMPDIR)%.o: %.cc 
+$(TMPDIR)%.o: %.cc
 	@echo "---- Compile $< ----"
 	$(COMPILE) $(INCLUDEDIR) -o $@ -c $<
 	@echo .
@@ -143,18 +134,22 @@ $(TMPDIR)%.o: %.cpp
 	$(COMPILE) $(INCLUDEDIR) -o $@ -c $<
 	@echo .
 
+$(TMPDIR)%.o: %.c 
+	@echo "---- Compile $< ----"
+	$(COMPILE) $(INCLUDEDIR) -o $@ -c $<
+	@echo .
+
 clean:
 	@echo "Clean up..."
-	@if [ -n "$(HEADERDIR)" ]; then \
-		rm -f $(HEADERDIR)*; \
-	fi
+# rm -f $(HEADERDIR)*
 	rm -f $(TMPDIR)*
-	rm -f $(BINDIR)*
-	@if [ "${BUILD_TYPE}x" = "dynamicx" ]; then \
-		rm -f $(BINDIR)$(LINK1) $(BINDIR)$(LINK2); \
-	fi
+# rm -f $(BINDIR)*
+# rm -rf ../bin/*
+# @if [ "${BUILD_TYPE}x" = "dynamicx" ]; then \
+# 	rm -f $(BINDIR)$(LINK1) $(BINDIR)$(LINK2); \
+# fi
 
-install: all
+install: all LINK1 LINK2
 	@if [ -n "$(HEADERDIR)" ]; then \
 		if [ -n "$(HEADERS)" ]; then \
 			echo "--- install headers ... $(HEADERS)"; \
@@ -166,6 +161,19 @@ install: all
 		echo "--- install binaries ... $(TARGET)"; \
 		echo "cp -p $(TMPDIR)$(TARGET) $(BINDIR)"; \
 		cp -p $(TMPDIR)$(TARGET) $(BINDIR); \
+	fi
+
+
+LINK1:
+	@if [ "${BUILD_TYPE}x" = "dynamicx" ]; then \
+		cd $(BINDIR); \
+		ln -sf $(TARGET) $(LINK1); \
+	fi
+
+LINK2:
+	@if [ "${BUILD_TYPE}x" = "dynamicx" ]; then\
+		cd $(BINDIR); \
+		ln -sf $(LINK1) $(LINK2); \
 	fi
 
 debug:
