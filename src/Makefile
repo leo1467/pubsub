@@ -91,7 +91,7 @@ LIBDIR=$(addsuffix /$(BUILD_TYPE), $(LIBDIR1)) $(LIBDIR2)
 
 # LIBS=-lMsgDispatcher -lEmgOtcGw -lEmgTkBus -lEmgGwClnt -lEmgData -lStrategyTools -lRushOrder -lEmgCore -lEmgRisk -lEmgTools -lAOMgrClnt -lTukanBusClnt -lNuFixUtil -lNuEv -lNuEv_pic -lNuUtil -lpthread -lAOUtil
 
-LIBS=-lIni -lpthread
+LIBS=-lIniCpp -lIni -lpthread
 
 # LDFLAGS_DYNAMIC=-Wl,-rpath,`pwd`/$(EMGTKBUS)/bin/dynamic:`pwd`/$(EMGOTCGW)/bin/dynamic:`pwd`/$(EMGTOOLS)/bin/dynamic:`pwd`/$(MSGDISPATCHER)/bin/dynamic:`pwd`/$(EMGDATA)/bin/dynamic:`pwd`/$(EMGCORE)/bin/dynamic:`pwd`/$(STRATEGY_RUSHORDER)/bin/dynamic:`pwd`/$(STRATEGY_TOOLS)/bin/dynamic:`pwd`/$(EMGRISK)/bin/dynamic
 LDFLAGS_DYNAMIC=
