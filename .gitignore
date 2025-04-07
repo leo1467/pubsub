@@ -3,3 +3,5 @@ tmp
 *.o
 tbase
 runenv
+*.swp
+*.swo
