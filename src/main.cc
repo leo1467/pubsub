@@ -1,5 +1,3 @@
-#include <iostream>
-#include <cstring>
 #include <string>
 
 #include "IniTools.hpp"

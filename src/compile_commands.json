@@ -1,0 +1,32 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-Wextra",
+      "-Wno-parentheses",
+      "-std=c++17",
+      "-g",
+      "-finline-functions",
+      "-finline-limit=3600",
+      "-m64",
+      "-fno-builtin-malloc",
+      "-D_REENTRANT",
+      "-D_FILE_OFFSET_BITS=64",
+      "-D_LARGE_FILE",
+      "-D_GNU_SOURCE",
+      "-O0",
+      "-DDEBUG",
+      "-I.",
+      "-I../Tools/inih/include",
+      "-I../Tools/IniTools/include",
+      "-c",
+      "-o",
+      "../tmp/main.o",
+      "main.cc"
+    ],
+    "directory": "/home/neo/workspace/pubsub/src",
+    "file": "/home/neo/workspace/pubsub/src/main.cc",
+    "output": "/home/neo/workspace/pubsub/tmp/main.o"
+  }
+]

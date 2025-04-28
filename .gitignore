@@ -5,3 +5,4 @@ tbase
 runenv
 *.swp
 *.swo
+*.cache
